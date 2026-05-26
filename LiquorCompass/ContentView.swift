@@ -1,6 +1,7 @@
 import SwiftUI
 import CoreLocation
 import Combine
+import MapKit
 import UIKit
 
 struct ContentView: View {
@@ -33,7 +34,10 @@ struct ContentView: View {
                 Spacer()
 
                 distanceLabel
-                    .padding(.bottom, 60)
+
+                directionsButton
+                    .padding(.top, 24)
+                    .padding(.bottom, 50)
             }
             .padding(.horizontal, 24)
 
@@ -121,6 +125,43 @@ struct ContentView: View {
                 .tracking(4)
                 .foregroundColor(.white.opacity(0.45))
         }
+    }
+
+    private var directionsButton: some View {
+        Button(action: openInMaps) {
+            HStack(spacing: 10) {
+                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                Text("Directions")
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 22)
+            .padding(.vertical, 12)
+            .background(
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color(red: 1.0, green: 0.45, blue: 0.3),
+                                     Color(red: 0.85, green: 0.28, blue: 0.18)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            )
+            .shadow(color: Color(red: 1.0, green: 0.45, blue: 0.3).opacity(0.35), radius: 12, y: 4)
+        }
+        .buttonStyle(.plain)
+        .opacity(finder.selected == nil ? 0 : 1)
+        .disabled(finder.selected == nil)
+        .animation(.easeInOut(duration: 0.25), value: finder.selected?.id)
+    }
+
+    private func openInMaps() {
+        guard let store = finder.selected else { return }
+        store.mapItem.openInMaps(launchOptions: [
+            MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+        ])
     }
 
     private var permissionOverlay: some View {
