@@ -1,11 +1,16 @@
 import SwiftUI
 import CoreLocation
 import Combine
+import UIKit
 
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var finder = LiquorStoreFinder()
     @State private var showingStorePicker = false
+    @State private var wasAligned = false
+    private let alignmentHaptic = UIImpactFeedbackGenerator(style: .light)
+
+    private static let alignmentThresholdDegrees: Double = 5
 
     var body: some View {
         ZStack {
@@ -45,6 +50,22 @@ struct ContentView: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+        .onChange(of: normalizedArrowAngle) { _, newValue in
+            handleAlignment(angle: newValue)
+        }
+    }
+
+    private func handleAlignment(angle: Double) {
+        guard finder.selected != nil, locationManager.location != nil else {
+            wasAligned = false
+            return
+        }
+        let aligned = abs(angle) <= Self.alignmentThresholdDegrees
+        if aligned && !wasAligned {
+            alignmentHaptic.prepare()
+            alignmentHaptic.impactOccurred(intensity: 0.7)
+        }
+        wasAligned = aligned
     }
 
     // MARK: - Sections
@@ -138,6 +159,14 @@ struct ContentView: View {
               let store = finder.selected else { return 0 }
         let bearing = bearingDegrees(from: userLocation, to: store.location)
         return bearing - locationManager.heading
+    }
+
+    // arrowAngle wrapped into (-180, 180] for alignment checks.
+    private var normalizedArrowAngle: Double {
+        let mod = arrowAngle.truncatingRemainder(dividingBy: 360)
+        if mod > 180 { return mod - 360 }
+        if mod <= -180 { return mod + 360 }
+        return mod
     }
 
     private var formattedDistance: String {
