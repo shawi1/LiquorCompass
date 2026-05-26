@@ -2,9 +2,21 @@ import Foundation
 import MapKit
 
 struct LiquorStore: Identifiable, Equatable {
-    let id = UUID()
+    let id: String
     let name: String
     let location: CLLocation
+    let mapItem: MKMapItem
+
+    init(mapItem: MKMapItem) {
+        self.mapItem = mapItem
+        self.name = mapItem.name ?? "Liquor Store"
+        let loc = mapItem.placemark.location
+            ?? CLLocation(latitude: mapItem.placemark.coordinate.latitude,
+                          longitude: mapItem.placemark.coordinate.longitude)
+        self.location = loc
+        // Stable identity across re-searches so manual selection survives.
+        self.id = "\(loc.coordinate.latitude),\(loc.coordinate.longitude)|\(self.name)"
+    }
 
     static func == (lhs: LiquorStore, rhs: LiquorStore) -> Bool {
         lhs.id == rhs.id
@@ -13,8 +25,10 @@ struct LiquorStore: Identifiable, Equatable {
 
 @MainActor
 final class LiquorStoreFinder: ObservableObject {
-    @Published var nearest: LiquorStore?
+    @Published var nearby: [LiquorStore] = []
+    @Published var selected: LiquorStore?
     @Published var isSearching = false
+    @Published private(set) var userPickedSelection = false
 
     private var lastSearchLocation: CLLocation?
 
@@ -41,15 +55,33 @@ final class LiquorStoreFinder: ObservableObject {
 
         do {
             let response = try await MKLocalSearch(request: request).start()
-            let stores = response.mapItems.compactMap { item -> LiquorStore? in
-                guard let loc = item.placemark.location else { return nil }
-                return LiquorStore(name: item.name ?? "Liquor Store", location: loc)
+            let stores = response.mapItems
+                .map { LiquorStore(mapItem: $0) }
+                .sorted { $0.location.distance(from: location) < $1.location.distance(from: location) }
+
+            nearby = stores
+
+            if userPickedSelection,
+               let current = selected,
+               let preserved = stores.first(where: { $0.id == current.id }) {
+                selected = preserved
+            } else {
+                userPickedSelection = false
+                selected = stores.first
             }
-            nearest = stores.min(by: {
-                $0.location.distance(from: location) < $1.location.distance(from: location)
-            })
         } catch {
-            nearest = nil
+            nearby = []
+            selected = nil
         }
+    }
+
+    func select(_ store: LiquorStore) {
+        selected = store
+        userPickedSelection = true
+    }
+
+    func resetToNearest() {
+        userPickedSelection = false
+        selected = nearby.first
     }
 }

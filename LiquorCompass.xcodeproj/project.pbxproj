@@ -11,12 +11,14 @@
 		43BB9EB509DAD5DF8A36F065 /* LiquorCompassApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA8B0E9AE61EC78DEF2E74B5 /* LiquorCompassApp.swift */; };
 		95AD77EA5A7985E446DDB5F1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C72D1314151418BFC80746 /* ContentView.swift */; };
 		971E7BF780E35D53CEBB4859 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 171DFB91014F3EC3ECBB5082 /* Preview Assets.xcassets */; };
+		9F3E77F588A85F83A4D2D01F /* StoreListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23E429E63A211433FE8B0626 /* StoreListSheet.swift */; };
 		CCC48464901AC985EEF14242 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA39D4B7B84D02807B01D82 /* LocationManager.swift */; };
 		F6F9ECE94F8016C8ED8C4EFA /* LiquorStoreFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596A903DB468B32DEF90097C /* LiquorStoreFinder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		171DFB91014F3EC3ECBB5082 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		23E429E63A211433FE8B0626 /* StoreListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreListSheet.swift; sourceTree = "<group>"; };
 		596A903DB468B32DEF90097C /* LiquorStoreFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquorStoreFinder.swift; sourceTree = "<group>"; };
 		7AA39D4B7B84D02807B01D82 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		C4A106FA30A1CA01038C915A /* LiquorCompass.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LiquorCompass.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -58,6 +60,7 @@
 				CA8B0E9AE61EC78DEF2E74B5 /* LiquorCompassApp.swift */,
 				596A903DB468B32DEF90097C /* LiquorStoreFinder.swift */,
 				7AA39D4B7B84D02807B01D82 /* LocationManager.swift */,
+				23E429E63A211433FE8B0626 /* StoreListSheet.swift */,
 				34489BCB67C370901263879C /* Preview Content */,
 			);
 			path = LiquorCompass;
@@ -139,6 +142,7 @@
 				43BB9EB509DAD5DF8A36F065 /* LiquorCompassApp.swift in Sources */,
 				F6F9ECE94F8016C8ED8C4EFA /* LiquorStoreFinder.swift in Sources */,
 				CCC48464901AC985EEF14242 /* LocationManager.swift in Sources */,
+				9F3E77F588A85F83A4D2D01F /* StoreListSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

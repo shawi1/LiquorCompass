@@ -5,6 +5,7 @@ import Combine
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var finder = LiquorStoreFinder()
+    @State private var showingStorePicker = false
 
     var body: some View {
         ZStack {
@@ -39,23 +40,41 @@ struct ContentView: View {
         .onReceive(locationManager.$location.compactMap { $0 }) { newLocation in
             Task { await finder.searchIfNeeded(near: newLocation) }
         }
+        .sheet(isPresented: $showingStorePicker) {
+            StoreListSheet(finder: finder, userLocation: locationManager.location)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Sections
 
     private var header: some View {
         VStack(spacing: 6) {
-            Text("NEAREST LIQUOR STORE")
+            Text(finder.userPickedSelection ? "SELECTED LIQUOR STORE" : "NEAREST LIQUOR STORE")
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .tracking(3)
                 .foregroundColor(.white.opacity(0.45))
 
-            Text(finder.nearest?.name ?? (finder.isSearching ? "Searching…" : "—"))
-                .font(.system(size: 24, weight: .semibold, design: .rounded))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
+            Button {
+                guard !finder.nearby.isEmpty else { return }
+                showingStorePicker = true
+            } label: {
+                HStack(spacing: 8) {
+                    Text(finder.selected?.name ?? (finder.isSearching ? "Searching…" : "—"))
+                        .font(.system(size: 24, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                    if !finder.nearby.isEmpty {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                }
                 .frame(minHeight: 60)
+            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -65,7 +84,7 @@ struct ContentView: View {
             CompassNeedle()
                 .rotationEffect(.degrees(arrowAngle))
                 .animation(.easeInOut(duration: 0.35), value: arrowAngle)
-                .opacity(finder.nearest == nil ? 0.25 : 1)
+                .opacity(finder.selected == nil ? 0.25 : 1)
         }
         .frame(width: 320, height: 320)
     }
@@ -116,14 +135,14 @@ struct ContentView: View {
 
     private var arrowAngle: Double {
         guard let userLocation = locationManager.location,
-              let store = finder.nearest else { return 0 }
+              let store = finder.selected else { return 0 }
         let bearing = bearingDegrees(from: userLocation, to: store.location)
         return bearing - locationManager.heading
     }
 
     private var formattedDistance: String {
         guard let userLocation = locationManager.location,
-              let store = finder.nearest else { return "—" }
+              let store = finder.selected else { return "—" }
         let meters = userLocation.distance(from: store.location)
         let formatter = MeasurementFormatter()
         formatter.unitOptions = .naturalScale
